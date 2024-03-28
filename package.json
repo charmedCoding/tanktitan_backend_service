@@ -1,0 +1,53 @@
+{
+	"name": "node-knex-template",
+	"version": "0.1.0",
+	"description": "",
+	"main": "src/server.ts",
+	"scripts": {
+		"prebuild": "npm run generate",
+		"predev": "npm run generate",
+		"pretest": "cd src/ && knex migrate:latest --env test && knex seed:run --env test --specific=DummyData.ts",
+		"prestart": "knex migrate:latest --knexfile build/knexfile.js",
+		"build": "tsc",
+		"dev": "concurrently \"nodemon\" \"nodemon -x tsoa spec-and-routes\"",
+		"format": "prettier --write src/",
+		"generate": "tsoa spec-and-routes",
+		"lint": "eslint . --max-warnings=10",
+		"lintfix": "npm run lint -- --fix",
+		"localtest": "npm run pretest && jest --forceExit",
+		"start": "node build/server.js",
+		"test": "jest --coverage --runInBand --ci --forceExit"
+	},
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"axios": "^1.6.8",
+		"body-parser": "^1.19.1",
+		"cors": "^2.8.5",
+		"express": "^4.17.2",
+		"knex": "^2.3.0",
+		"log4js": "^6.7.1",
+		"pg": "^8.7.1",
+		"swagger-ui-express": "^4.3.0",
+		"tsoa": "^3.14.1"
+	},
+	"devDependencies": {
+		"@types/body-parser": "^1.19.2",
+		"@types/cors": "^2.8.12",
+		"@types/express": "^4.17.13",
+		"@types/node": "^17.0.9",
+		"@types/swagger-ui-express": "^4.1.3",
+		"@typescript-eslint/eslint-plugin": "^5.48.2",
+		"concurrently": "^7.0.0",
+		"dotenv": "^14.3.2",
+		"eslint": "^8.32.0",
+		"eslint-config-prettier": "^8.6.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"nodemon": "^2.0.15",
+		"prettier": "^2.5.1",
+		"supertest": "^6.3.3",
+		"ts-jest": "^29.0.4",
+		"ts-node": "^10.4.0",
+		"typescript": "4.7.4"
+	}
+}

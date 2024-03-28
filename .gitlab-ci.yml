@@ -1,0 +1,98 @@
+image: docker:20.10.6
+
+stages:
+    - quality_check
+    - build
+    - deploy
+
+variables:
+    # Global variables
+    DOCKER_REGISTRY: mtr.devops.telekom.de
+    REPOSITORY_NAME: node_knex_backend
+
+    DOCKER_IMAGE: $DOCKER_REGISTRY/innolab_onsite/$REPOSITORY_NAME
+
+eslint:
+    image: node:latest
+    stage: quality_check
+    script:
+        - npm install
+        - npm run lint
+
+vulnerability-check:
+    image: node:latest
+    stage: quality_check
+    script:
+        - npm i --package-lock-only
+        - npm audit --audit-level=critical
+
+api-tests:
+    image: node:18-alpine3.17
+    stage: quality_check
+    services:
+        - postgres:13.6
+    variables:
+        NODE_ENV: test
+        DATABASE_CONNECTION_STRING: postgresql://postgres:postgres@localhost:5432
+        POSTGRES_DB: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_HOST_AUTH_METHOD: trust
+        TZ: Europe/Berlin
+    script:
+        - npm install
+        - npm run generate
+        - npm run test
+    coverage: /All files[^|]*\|[^|]*\s+([\d\.]+)/
+    only:
+        - main
+        - production
+
+build-image:
+    stage: build
+    tags:
+        - otc_run_docker_s
+    rules:
+        - if: $CI_COMMIT_BRANCH == 'main'
+          variables:
+            VERSIONED_IMAGE_TAG: $CI_PIPELINE_ID
+            LATEST_IMAGE_TAG: latest
+        - if: $CI_COMMIT_BRANCH == 'production'
+          variables:
+            VERSIONED_IMAGE_TAG: p$CI_PIPELINE_ID
+            LATEST_IMAGE_TAG: platest
+    variables:
+        REQUEST_BODY: "'{\"expiration\": null}'"
+        REQUEST_COMMAND: 'curl -f -s -S -X PUT -H "Content-Type: application/json" -H "Authorization: Bearer $MTR_APPLICATION_TOKEN" -d $REQUEST_BODY https://$DOCKER_REGISTRY/api/v1/repository/innolab_onsite/$REPOSITORY_NAME/tag/$LATEST_IMAGE_TAG'
+    before_script:
+        - apk add --update curl && rm -rf /var/cache/apk/*
+    script:
+        - docker login $DOCKER_REGISTRY -u $MTR_PUSH_USER -p $MTR_PUSH_PASSWORD
+        - docker build --label quay.expires-after=8w -t $DOCKER_IMAGE:$VERSIONED_IMAGE_TAG -t $DOCKER_IMAGE:$LATEST_IMAGE_TAG .
+        - docker push $DOCKER_IMAGE --all-tags
+    after_script:
+        - 'eval "$REQUEST_COMMAND"'
+
+deploy-application:
+    image: openshift/origin-cli
+    stage: deploy
+    tags:
+        - otc_run_docker_k8s_m
+    rules:
+        - if: $CI_COMMIT_BRANCH == 'main'
+          variables:
+            APP_NAME: node-knex-backend-nonprod
+            PROJECT_NAME: node-knex
+            APP_AGILE_SERVER: $APP_AGILE_SERVER_NONPROD
+            APP_AGILE_TOKEN: $APP_AGILE_TOKEN_NONPROD
+        - if: $CI_COMMIT_BRANCH == 'production'
+          variables:
+            APP_NAME: node-knex-backend-prod
+            PROJECT_NAME: node-knex
+            APP_AGILE_SERVER: $APP_AGILE_SERVER_PROD
+            APP_AGILE_TOKEN: $APP_AGILE_TOKEN_PROD
+    before_script:
+        - oc login "$APP_AGILE_SERVER" --token="$APP_AGILE_TOKEN" --insecure-skip-tls-verify
+        - oc project "$PROJECT_NAME"
+    script:
+        - oc rollout latest dc/$APP_NAME

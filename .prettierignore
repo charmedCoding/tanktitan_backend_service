@@ -1,0 +1,4 @@
+# This file can be used to specify which files and directories shouldn't be formatted by prettier.
+# Ignore files and directories:
+
+.gitlab-ci.yml

@@ -1,0 +1,26 @@
+{
+	"entryFile": "src/index.ts",
+	"noImplicitAdditionalProperties": "throw-on-extras",
+	"controllerPathGlobs": ["src/controllers/*Controller.ts"],
+	"spec": {
+		"outputDirectory": "src",
+		"specVersion": 3,
+		"schemes": ["http", "https"],
+		"spec": {
+			"info": {
+				"title": "Node Knex Template API",
+				"description": "This is a nice template based on Typescript, tsoa and Knex",
+				"version": "1.0.0"
+			},
+			"servers": [
+				{
+					"url": "/api"
+				}
+			]
+		}
+	},
+	"routes": {
+		"basePath": "/api",
+		"routesDir": "src"
+	}
+}
