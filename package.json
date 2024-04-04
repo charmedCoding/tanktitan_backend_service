@@ -21,6 +21,8 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@googlemaps/js-api-loader": "^1.16.6",
+		"@types/googlemaps": "^3.43.3",
 		"axios": "^1.6.8",
 		"body-parser": "^1.19.1",
 		"cors": "^2.8.5",
