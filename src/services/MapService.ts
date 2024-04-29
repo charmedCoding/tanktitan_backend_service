@@ -1,27 +1,31 @@
 import { Loader } from "@googlemaps/js-api-loader";
+import {Client, LatLngLiteral} from "@googlemaps/google-maps-services-js";
+import {Injectable} from '@nestjs/common'
+import { ConfigService} from '@nestjs/config'
 
-export class MapService {
-    private loader: Loader;
+// Map API macht mehr Sinn im Frontend weil es direkt eine Map rendert! (kein JSON)
+// = wie Iframe
+// API Key in Angular enviroment und das auf git ignore
+@Injectable()
+export class MapService extends Client {
+    private readonly accessKey  = process.env.GMAPS_API_KEY;
 
-    constructor() {
-        this.loader = new Loader({
-            apiKey: process.env.GMAPS_API_KEY,
-            version: "weekly",
-        });
+    constructor (private congig: ConfigService) {
+        super()
     }
+    async getCoordinates(address: {
+        street: string;
+        number: string; 
+        city: string;
+        state: string;
+        zip: string;
+    }): Promise<LatLngLiteral>{
+        const googleRes= await this.geocode({params:{
+            address:  `${address.street}, ${address.number}, ${address.city}, ${address.state}, ${address.zip}`,
+            key: this.accessKey,
+        }});
+        const {lng, lat} = googleRes.data.results[0].geometry.location;
+        return {lng, lat};
+    }}
 
-    public async getMap(): Promise<google.maps.Map> {
-        try {
-            await this.loader.load();
-            const map = new google.maps.Map(document.getElementById("map") as HTMLElement, {
-                center: { lat: -34.397, lng: 150.644 },
-                zoom: 8,
-            });
-            return map;
-        } catch (error) {
-            console.log(error);
-            throw new Error(error);
-        }
-    }
-}
 

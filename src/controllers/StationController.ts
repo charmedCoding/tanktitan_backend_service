@@ -35,19 +35,20 @@ export class StationController extends Controller {
     @Get("")
     @Response(500, "Internal Server Error")
     public async getAllDieselStations(
-        @Query() lat: string,
-        @Query() lng: string,
-        @Query() rad: number, 
-		@Query() sort: string,
-		@Query() type: string
+        // @Query() lat: string,
+        // @Query() lng: string,
+        // @Query() rad: number, 
+		// @Query() sort: string,
+		// @Query() type: string
     ): Promise<Station[]> {
-        const sRequest: StationRequest = {
-            lat,
-            lng,
-            rad,
-			sort,
-			type
-        };
-        return this.StationService.getAllDieselStations(sRequest);
+        // const sRequest: StationRequest = {
+        //     lat,
+        //     lng,
+        //     rad,
+		// 	sort,
+		// 	type
+        // };
+        return this.StationService.getAllDieselStations();
+        // return this.StationService.getAllDieselStations(sRequest);
     }
 }

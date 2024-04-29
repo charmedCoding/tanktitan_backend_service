@@ -21,7 +21,10 @@
 	"author": "",
 	"license": "ISC",
 	"dependencies": {
+		"@googlemaps/google-maps-services-js": "^3.4.0",
 		"@googlemaps/js-api-loader": "^1.16.6",
+		"@nestjs/common": "^10.3.8",
+		"@nestjs/config": "^3.2.2",
 		"@types/googlemaps": "^3.43.3",
 		"axios": "^1.6.8",
 		"body-parser": "^1.19.1",
