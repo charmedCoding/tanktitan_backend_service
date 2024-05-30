@@ -24,6 +24,23 @@ export class StationService {
 				`${process.env.BASE_URL}/json/list.php?lat=${sRequest.lat}&lng=${sRequest.lng}&rad=${sRequest.rad}&sort=${sRequest.sort}&type=${sRequest.type}&apikey=${process.env.API_KEY}`
 			)
 			console.log(response)
+		// 	const stations = response.data.stations;
+
+        // 	// Define the regex pattern to match names
+       	// 	 const pattern = /^[A-Za-z\s'-]+/;
+
+       	// 	// Extract and clean the names
+       	// 	const cleanedNames = stations.map(station => {
+        //     const match = station.name.match(pattern);
+		// 	return {
+        //         ...station,
+        //         name: match ? match[0].trim() : ''
+        //     };
+        // });
+
+        // console.log(cleanedNames);
+        // return cleanedNames;
+		console.log(response.data.stations)
 			return response.data.stations
 		} catch (error) {
 			console.log(error)

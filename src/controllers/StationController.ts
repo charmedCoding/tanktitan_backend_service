@@ -28,7 +28,7 @@ export class StationController extends Controller {
      * @summary Get all stations
      * @param lat Latitude
      * @param lng Longitude
-     * @param rad Radius in meters
+     * @param rad Radius in km
 	 * @param sort Filter
 	 * @param type Fuel Type
      */
